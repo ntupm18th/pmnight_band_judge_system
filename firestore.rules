@@ -1,0 +1,240 @@
+rules_version = '2';
+
+// 流唱之夜一驗評分系統：所有權限都在這裡由伺服器端執行，前端隱藏按鈕只是輔助。
+// 修改後務必執行 `npm run test:rules`。
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ───────── 身分與角色 ─────────
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    function me() {
+      return get(userPath(request.auth.uid)).data;
+    }
+
+    // 必須有 users 文件且未停用；只建立 Auth 帳號而沒有 users 文件的人什麼都不能做
+    function isActive() {
+      return signedIn() && exists(userPath(request.auth.uid)) && me().active == true;
+    }
+
+    function isAdmin() {
+      return isActive() && me().isAdmin == true;
+    }
+
+    // 管理員兼任評審時也能評分
+    function canScore() {
+      return isActive() && (me().isJudge == true || me().isAdmin == true);
+    }
+
+    function settingsPath() {
+      return /databases/$(database)/documents/config/settings;
+    }
+
+    function locked() {
+      return exists(settingsPath()) && get(settingsPath()).data.scoringLocked == true;
+    }
+
+    function keysExactly(d, keys) {
+      return d.keys().hasOnly(keys) && d.keys().hasAll(keys);
+    }
+
+    // ───────── 使用者 ─────────
+
+    function validUser(d) {
+      return keysExactly(d, ['username', 'displayName', 'isAdmin', 'isJudge', 'active', 'createdAt'])
+        && d.username is string && d.username.matches('^[a-z0-9._-]{2,32}$')
+        && d.displayName is string && d.displayName.size() >= 1 && d.displayName.size() <= 40
+        && d.isAdmin is bool && d.isJudge is bool && d.active is bool
+        && d.createdAt is timestamp;
+    }
+
+    match /users/{uid} {
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow create: if isAdmin() && validUser(request.resource.data);
+      // 帳號名稱不可改；管理員不能拔掉自己的管理員權限或停用自己（避免把自己鎖在外面）
+      allow update: if isAdmin() && validUser(request.resource.data)
+        && request.resource.data.username == resource.data.username
+        && request.resource.data.createdAt == resource.data.createdAt
+        && (uid != request.auth.uid
+            || (request.resource.data.isAdmin == true && request.resource.data.active == true));
+      allow delete: if false;
+    }
+
+    // ───────── 表演組別 ─────────
+
+    function validPerformance(d) {
+      return keysExactly(d, ['day', 'order', 'bandName', 'song', 'category', 'active', 'deleted', 'updatedAt', 'updatedBy'])
+        && d.day in [1, 2]
+        && d.order is int && d.order >= 0 && d.order <= 100000
+        && d.bandName is string && d.bandName.size() >= 1 && d.bandName.size() <= 100
+        && d.song is string && d.song.size() <= 200
+        && d.category in ['vocal', 'band']
+        && d.active is bool && d.deleted is bool
+        && d.updatedAt == request.time
+        && d.updatedBy == request.auth.uid;
+    }
+
+    match /performances/{performanceId} {
+      allow read: if isActive();
+      allow create, update: if isAdmin() && validPerformance(request.resource.data);
+      // 只做軟刪除（deleted = true），評分資料永遠可以對回來
+      allow delete: if false;
+    }
+
+    // ───────── 評分 ─────────
+    // 文件 ID 固定為 {performanceId}_{judgeUid}，保證每位評審每組只有一份評分。
+
+    function scoreKeys() {
+      return ['performanceId', 'judgeUid', 'category', 'items', 'status', 'noShow',
+              'note', 'rev', 'updatedAt', 'updatedBy', 'deviceId', 'lastAuditId'];
+    }
+
+    // 未填為 null；完成評分時每項都必須是範圍內的整數
+    function itemOk(v, max, mustFill) {
+      return (v == null && !mustFill) || (v is int && v >= 0 && v <= max);
+    }
+
+    function vocalItemsOk(it, mustFill) {
+      return keysExactly(it, ['pitch', 'rhythm', 'expression'])
+        && itemOk(it.pitch, 40, mustFill)
+        && itemOk(it.rhythm, 30, mustFill)
+        && itemOk(it.expression, 30, mustFill);
+    }
+
+    function bandItemsOk(it, mustFill) {
+      return keysExactly(it, ['vPitch', 'vRhythm', 'vExpression', 'iAccuracy', 'iRhythm', 'iTone'])
+        && itemOk(it.vPitch, 15, mustFill)
+        && itemOk(it.vRhythm, 15, mustFill)
+        && itemOk(it.vExpression, 15, mustFill)
+        && itemOk(it.iAccuracy, 25, mustFill)
+        && itemOk(it.iRhythm, 20, mustFill)
+        && itemOk(it.iTone, 10, mustFill);
+    }
+
+    function validScore(d) {
+      return keysExactly(d, scoreKeys())
+        && d.performanceId is string && d.judgeUid is string
+        && d.category in ['vocal', 'band']
+        && d.status in ['draft', 'submitted']
+        && d.noShow is bool
+        && d.note is string && d.note.size() <= 2000
+        && d.rev is int
+        && d.deviceId is string && d.deviceId.size() <= 100
+        && d.updatedAt == request.time
+        && d.updatedBy == request.auth.uid
+        && d.items is map
+        && ((d.category == 'vocal' && vocalItemsOk(d.items, d.status == 'submitted'))
+            || (d.category == 'band' && bandItemsOk(d.items, d.status == 'submitted')));
+    }
+
+    function performanceOpen(pid, category) {
+      let path = /databases/$(database)/documents/performances/$(pid);
+      return exists(path)
+        && get(path).data.active == true
+        && get(path).data.deleted == false
+        && get(path).data.category == category;
+    }
+
+    function identityUnchanged() {
+      return request.resource.data.performanceId == resource.data.performanceId
+        && request.resource.data.judgeUid == resource.data.judgeUid
+        && request.resource.data.category == resource.data.category;
+    }
+
+    // rev 每次 +1：拿舊版本寫入（例如另一台裝置已先改過）會被拒絕，不會互相覆蓋
+    function nextRev() {
+      return request.resource.data.rev == resource.data.rev + 1;
+    }
+
+    function auditPath(id) {
+      return /databases/$(database)/documents/auditLogs/$(id);
+    }
+
+    match /scores/{scoreId} {
+      allow get: if isAdmin()
+        || (isActive() && scoreId.split('_').size() == 2 && scoreId.split('_')[1] == request.auth.uid);
+      allow list: if isAdmin() || (isActive() && resource.data.judgeUid == request.auth.uid);
+
+      // 評審建立自己的評分
+      allow create: if canScore() && !locked()
+        && request.resource.data.judgeUid == request.auth.uid
+        && scoreId == request.resource.data.performanceId + '_' + request.auth.uid
+        && validScore(request.resource.data)
+        && request.resource.data.rev == 1
+        && request.resource.data.lastAuditId == null
+        && performanceOpen(request.resource.data.performanceId, request.resource.data.category);
+
+      // 評審修改自己的評分；已完成的評分不能退回草稿
+      allow update: if canScore() && !locked()
+        && resource.data.judgeUid == request.auth.uid
+        && validScore(request.resource.data)
+        && identityUnchanged() && nextRev()
+        && request.resource.data.lastAuditId == null
+        && !(resource.data.status == 'submitted' && request.resource.data.status == 'draft')
+        && performanceOpen(request.resource.data.performanceId, request.resource.data.category);
+
+      // 管理員修改任一評分：必須在同一批次寫入一筆新的稽核紀錄；不受鎖定限制
+      allow update: if isAdmin()
+        && validScore(request.resource.data)
+        && identityUnchanged() && nextRev()
+        && request.resource.data.lastAuditId is string
+        && !exists(auditPath(request.resource.data.lastAuditId))
+        && existsAfter(auditPath(request.resource.data.lastAuditId));
+
+      allow delete: if false;
+    }
+
+    // ───────── 稽核紀錄 ─────────
+    // 只能新增，內容必須和同批次的評分修改完全一致；任何人都不能修改或刪除。
+
+    function snapshotOf(s) {
+      return {'items': s.items, 'status': s.status, 'noShow': s.noShow, 'note': s.note};
+    }
+
+    match /auditLogs/{auditId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && keysExactly(request.resource.data,
+             ['actorUid', 'scoreId', 'judgeUid', 'performanceId', 'before', 'after', 'reason', 'at'])
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.at == request.time
+        && request.resource.data.reason is string
+        && request.resource.data.reason.trim().size() >= 2
+        && request.resource.data.reason.size() <= 500
+        && auditMatchesScore(auditId, request.resource.data);
+      allow update, delete: if false;
+    }
+
+    function auditMatchesScore(auditId, a) {
+      let path = /databases/$(database)/documents/scores/$(a.scoreId);
+      let before = get(path).data;
+      let after = getAfter(path).data;
+      return after.lastAuditId == auditId
+        && after.rev == before.rev + 1
+        && a.judgeUid == before.judgeUid
+        && a.performanceId == before.performanceId
+        && a.before == snapshotOf(before)
+        && a.after == snapshotOf(after);
+    }
+
+    // ───────── 全域設定（評分鎖定） ─────────
+
+    match /config/settings {
+      allow read: if isActive();
+      allow write: if isAdmin()
+        && keysExactly(request.resource.data, ['scoringLocked', 'updatedBy', 'updatedAt'])
+        && request.resource.data.scoringLocked is bool
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    // 其他路徑一律拒絕（Firestore 預設即拒絕，此處僅為明確標示）
+  }
+}

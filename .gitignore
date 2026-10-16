@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+# 絕對不要提交 Service Account 金鑰
+service-account*.json
+*-firebase-adminsdk-*.json
+secrets/
+backups/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*.tsbuildinfo
+.firebase/

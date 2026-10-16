@@ -1,0 +1,38 @@
+{
+  "name": "pmnight-band-judge-system",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:emu": "vite --mode emulator",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-pmnight",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-pmnight \"vitest run tests/rules\"",
+    "test:unit": "vitest run tests/unit",
+    "create-admin": "node scripts/create-admin.mjs",
+    "reset-password": "node scripts/reset-password.mjs",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes"
+  },
+  "dependencies": {
+    "firebase": "^11.10.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.6"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "firebase-admin": "^13.10.0",
+    "firebase-tools": "^14.27.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.4",
+    "vitest": "^3.2.7"
+  }
+}
