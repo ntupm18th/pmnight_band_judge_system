@@ -83,7 +83,7 @@ export function PerformancesPage() {
               role="tab"
               aria-selected={day === d}
               onClick={() => setDay(d)}
-              className={`rounded-md px-3 py-1.5 ${day === d ? 'bg-indigo-600 text-white' : 'text-zinc-600 dark:text-zinc-300'}`}
+              className={`rounded-md px-3 py-1.5 ${day === d ? 'bg-accent font-semibold text-accent-ink' : 'text-zinc-600 dark:text-zinc-300'}`}
             >
               第 {d} 天 {DAY_LABELS[d]}（{allPerformances.filter((p) => p.day === d && !p.deleted).length}）
             </button>
@@ -144,7 +144,7 @@ export function PerformancesPage() {
               <li key={p.id} className="flex items-center gap-2">
                 <span className="text-zinc-500">第 {p.day} 天 #{p.order}</span> {p.bandName}
                 <span className="text-xs text-zinc-500">（評分 {scoreCount.get(p.id) ?? 0} 份，已保留）</span>
-                <button className="btn-ghost min-h-8 text-indigo-600" onClick={() => writer.patch(p.id, { deleted: false })}>還原</button>
+                <button className="btn-ghost min-h-8 text-indigo-700 dark:text-indigo-300" onClick={() => writer.patch(p.id, { deleted: false })}>還原</button>
               </li>
             ))}
           </ul>
@@ -173,11 +173,11 @@ function PerformanceRow({
   return (
     <tr className={`border-t border-zinc-100 dark:border-zinc-800 ${perf.active ? '' : 'opacity-60'}`}>
       <td className={cell}>
-        <InlineInput className="w-16 tabular-nums" type="number" value={String(perf.order)} label="順序"
+        <InlineInput className="w-16 num" type="number" value={String(perf.order)} label="順序"
           onSave={(v) => Number.isInteger(Number(v)) && Number(v) >= 0 && onPatch({ order: Number(v) })} />
       </td>
       <td className={cell}>
-        <InlineInput className="w-20 tabular-nums" value={perf.startTime} label="時間" onSave={(v) => onPatch({ startTime: v.slice(0, 20) })} />
+        <InlineInput className="w-20 num" value={perf.startTime} label="時間" onSave={(v) => onPatch({ startTime: v.slice(0, 20) })} />
       </td>
       <td className={cell}>
         <InlineInput className="min-w-56" value={perf.bandName} label="報名人" onSave={(v) => v.trim() && onPatch({ bandName: v.trim().slice(0, 100) })} />
@@ -198,7 +198,7 @@ function PerformanceRow({
           <option value="band">{CATEGORY_LABEL.band}</option>
         </select>
       </td>
-      <td className={`${cell} text-center tabular-nums`}>{scoreCount}</td>
+      <td className={`${cell} text-center num`}>{scoreCount}</td>
       <td className={`${cell} text-center`}>
         <input type="checkbox" className="size-4" aria-label={`${perf.bandName} 啟用`} checked={perf.active} onChange={(e) => onPatch({ active: e.target.checked })} />
       </td>

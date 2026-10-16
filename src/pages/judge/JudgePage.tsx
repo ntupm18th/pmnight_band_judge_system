@@ -53,7 +53,7 @@ export function JudgePage() {
           />
         ) : performanceId ? (
           <div className="card p-6 text-sm">
-            找不到這組表演，可能已被刪除。<Link className="text-indigo-600 underline" to="/judge">回到清單</Link>
+            找不到這組表演，可能已被刪除。<Link className="text-indigo-700 dark:text-indigo-300 underline" to="/judge">回到清單</Link>
           </div>
         ) : (
           <div className="card hidden p-6 text-sm text-zinc-500 lg:block">從左側清單選擇一組表演開始評分。</div>
@@ -134,14 +134,14 @@ function PerformanceList({
   return (
     <section className="card flex max-h-[calc(100dvh-6rem)] flex-col overflow-hidden lg:sticky lg:top-20" aria-label="表演清單">
       <div className="space-y-2 border-b border-zinc-200 p-3 dark:border-zinc-800">
-        <div role="tablist" aria-label="活動日期" className="grid grid-cols-2 gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
+        <div role="tablist" aria-label="活動日期" className="grid grid-cols-2 gap-1 rounded-[10px] bg-zinc-100 p-1 dark:bg-zinc-950/70">
           {([1, 2] as Day[]).map((d) => (
             <button
               key={d}
               role="tab"
               aria-selected={day === d && !searching}
               onClick={() => setDay(d)}
-              className={`rounded-md py-1.5 text-sm font-medium ${day === d && !searching ? 'bg-white shadow-sm dark:bg-zinc-950' : 'text-zinc-600 dark:text-zinc-400'}`}
+              className={`rounded-md py-1.5 text-sm font-medium transition-colors duration-150 ${day === d && !searching ? 'bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
             >
               第 {d} 天 {DAY_LABELS[d]}
             </button>
@@ -193,7 +193,7 @@ function PerformanceList({
                 aria-current={active ? 'true' : undefined}
                 className={`flex items-center gap-3 border-b border-zinc-100 px-3 py-2.5 dark:border-zinc-800 ${active ? 'bg-indigo-50 dark:bg-indigo-950/50' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50'} ${p.active ? '' : 'opacity-50'}`}
               >
-                <span className="w-8 shrink-0 text-center text-lg font-semibold tabular-nums">{p.order}</span>
+                <span className={`num w-8 shrink-0 text-center text-lg font-bold ${active ? 'text-indigo-700 dark:text-indigo-300' : 'text-zinc-400'}`}>{String(p.order).padStart(2, '0')}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium">{p.bandName}</span>
                   <span className="block truncate text-xs text-zinc-500">
@@ -336,7 +336,7 @@ function ScoreEditor({
             {CATEGORY_LABEL[perf.category]}
           </span>
         </p>
-        <h1 id="perf-title" className="mt-0.5 text-xl font-semibold">{perf.bandName}</h1>
+        <h1 id="perf-title" className="mt-1 text-2xl font-bold tracking-tight">{perf.bandName}</h1>
         <p className="text-zinc-600 dark:text-zinc-400">{perf.song || '（無曲目）'}</p>
       </div>
 
@@ -360,10 +360,11 @@ function ScoreEditor({
       )}
 
       <div className="card p-4">
-        <div className="sticky top-[3.25rem] z-10 -mx-4 -mt-4 mb-2 flex items-center justify-between rounded-t-xl border-b border-zinc-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95">
+        <div className="sticky top-[3.25rem] z-10 -mx-4 -mt-4 mb-2 flex items-center justify-between rounded-t-[14px] border-b border-zinc-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-white/[0.07] dark:bg-zinc-900/95">
           <span className="text-sm text-zinc-500">已填 {filled} / {items.length} 項</span>
-          <span className="tabular-nums" aria-live="polite">
-            總分 <span className="text-3xl font-bold">{total}</span>
+          <span className="num" aria-live="polite">
+            <span className="font-sans text-sm text-zinc-500">總分 </span>
+            <span className="text-4xl font-bold text-indigo-700 dark:text-indigo-400">{total}</span>
             <span className="text-zinc-500"> / 100</span>
           </span>
         </div>

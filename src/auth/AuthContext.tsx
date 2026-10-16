@@ -117,6 +117,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     await signOut(auth);
     await shutdownDb();
+    // 回到首頁，避免下一位登入者停在上一位的頁面
+    window.location.hash = '';
     window.location.reload();
     return true;
   }, []);

@@ -136,7 +136,7 @@ export function ScoreEditDialog({ score: initialScore, onClose }: { score: Score
                       min={0}
                       max={i.max}
                       step={1}
-                      className="input tabular-nums"
+                      className="input num"
                       value={draft.items[i.key] ?? ''}
                       onChange={(e) => setItem(i.key, e.target.value)}
                       aria-invalid={itemErrors.includes(i)}
@@ -147,7 +147,7 @@ export function ScoreEditDialog({ score: initialScore, onClose }: { score: Score
             </fieldset>
           ))}
           <p className="text-right text-sm">
-            總分 <span className="text-xl font-semibold tabular-nums">{totalOf(score.category, draft.items)}</span> / 100
+            總分 <span className="text-xl font-semibold num">{totalOf(score.category, draft.items)}</span> / 100
           </p>
           {itemErrors.length > 0 && <p className="text-sm text-red-600">分數必須是 0 到滿分之間的整數</p>}
 

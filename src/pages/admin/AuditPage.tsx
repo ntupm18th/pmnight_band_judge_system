@@ -82,7 +82,7 @@ export function AuditPage() {
                   <td className="px-3 py-2">{p ? `第 ${p.day} 天 #${p.order} ${p.bandName}` : '（已刪除的表演）'}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{name(l.judgeUid)}</td>
                   <td className="px-3 py-2">
-                    <span className="tabular-nums">總分 {totalOf(cat, l.before.items)} → {totalOf(cat, l.after.items)}</span>
+                    <span className="num">總分 {totalOf(cat, l.before.items)} → {totalOf(cat, l.after.items)}</span>
                     <span className="block text-xs text-zinc-500">{diff(cat, l.before, l.after).join('；')}</span>
                   </td>
                   <td className="px-3 py-2">{l.reason}</td>

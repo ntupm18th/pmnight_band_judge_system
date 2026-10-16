@@ -78,7 +78,7 @@ export function SummaryPage() {
               role="tab"
               aria-selected={view === v}
               onClick={() => setView(v)}
-              className={`rounded-md px-3 py-1.5 ${view === v ? 'bg-indigo-600 text-white' : 'text-zinc-600 dark:text-zinc-300'}`}
+              className={`rounded-md px-3 py-1.5 ${view === v ? 'bg-accent font-semibold text-accent-ink' : 'text-zinc-600 dark:text-zinc-300'}`}
             >
               {v === 'summary' ? '摘要總表' : '詳細總表'}
             </button>
@@ -155,14 +155,14 @@ function SummaryTable({ performances, scoresByPerf }: { performances: Performanc
             return (
               <tr key={p.id} className={`border-t border-zinc-100 dark:border-zinc-800 ${p.active ? '' : 'opacity-50'}`}>
                 <td className={td}>{p.day}</td>
-                <td className={`${td} tabular-nums`}>{p.order}</td>
-                <td className={`${td} tabular-nums text-zinc-500`}>{p.startTime}</td>
+                <td className={`${td} num`}>{p.order}</td>
+                <td className={`${td} num text-zinc-500`}>{p.startTime}</td>
                 <td className={`${td} max-w-56 truncate`} title={p.bandName}>{p.bandName}</td>
                 <td className={`${td} max-w-48 truncate text-zinc-600 dark:text-zinc-400`} title={p.song}>{p.song}</td>
                 <td className={td}>{CATEGORY_LABEL[p.category]}</td>
-                <td className={`${td} text-right tabular-nums`}>{st.validCount}</td>
-                <td className={`${td} text-right tabular-nums ${st.average === null ? 'text-zinc-400' : 'font-semibold'}`}>{formatAverage(st.average)}</td>
-                <td className={`${td} text-right tabular-nums`}>{st.rank ?? '—'}</td>
+                <td className={`${td} text-right num`}>{st.validCount}</td>
+                <td className={`${td} text-right num ${st.average === null ? 'text-zinc-400' : 'font-semibold'}`}>{formatAverage(st.average)}</td>
+                <td className={`${td} text-right num`}>{st.rank ?? '—'}</td>
                 <td className={`${td} text-xs`}>
                   完成 {st.submittedCount}・草稿 {st.draftCount}
                 </td>
@@ -262,14 +262,14 @@ function DetailTable({
             return (
               <tbody key={p.id} className="border-t-2 border-zinc-200 dark:border-zinc-700">
                 <tr className={`bg-zinc-50 dark:bg-zinc-900/60 ${p.active ? '' : 'opacity-50'}`}>
-                  <td className={`${td} font-medium tabular-nums`}>{p.day}-{p.order}</td>
+                  <td className={`${td} font-medium num`}>{p.day}-{p.order}</td>
                   <td className={`${td} font-medium`} colSpan={3}>
                     {p.bandName} <span className="font-normal text-zinc-500">{p.song}</span>
                   </td>
                   <td className={`${td} text-right text-xs text-zinc-500`} colSpan={items.length}>
                     有效評分 {st.validCount} 份
                   </td>
-                  <td className={`${td} text-right font-semibold tabular-nums`}>
+                  <td className={`${td} text-right font-semibold num`}>
                     {st.average === null ? <span className="text-xs font-normal text-zinc-400">尚無有效成績</span> : st.average.toFixed(3)}
                   </td>
                   <td className={td} colSpan={2}>{st.rank !== null && <span className="text-xs">排名 {st.rank}</span>}</td>
@@ -300,9 +300,9 @@ function DetailTable({
                       </td>
                       <td className={td}>{s.noShow && <span className="badge bg-zinc-200 dark:bg-zinc-700">不上場</span>}</td>
                       {items.map((i) => (
-                        <td key={i.key} className={`${td} text-right tabular-nums`}>{s.items[i.key] ?? <span className="text-zinc-400">—</span>}</td>
+                        <td key={i.key} className={`${td} text-right num`}>{s.items[i.key] ?? <span className="text-zinc-400">—</span>}</td>
                       ))}
-                      <td className={`${td} text-right font-medium tabular-nums ${valid ? '' : 'text-zinc-400 line-through decoration-zinc-400/60'}`} title={valid ? '計入平均' : '不計入平均'}>
+                      <td className={`${td} text-right font-medium num ${valid ? '' : 'text-zinc-400 line-through decoration-zinc-400/60'}`} title={valid ? '計入平均' : '不計入平均'}>
                         {totalOf(s.category, s.items)}
                       </td>
                       <td className={`${td} max-w-64 truncate text-xs text-zinc-600 dark:text-zinc-400`} title={s.note}>{s.note}</td>

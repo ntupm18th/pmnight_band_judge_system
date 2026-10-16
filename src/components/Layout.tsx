@@ -38,9 +38,12 @@ export function Layout() {
 
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
+      <header className="sticky top-0 z-30 border-b border-zinc-200 bg-zinc-50/85 backdrop-blur-md dark:border-white/[0.07] dark:bg-zinc-950/85">
         <div className="mx-auto flex max-w-screen-2xl flex-wrap items-center gap-2 px-4 py-2">
-          <span className="mr-auto font-semibold">流唱之夜評分</span>
+          <span className="mr-auto flex items-baseline gap-2">
+            <span className="text-[17px] font-bold tracking-wide">流唱之夜</span>
+            <span className="eyebrow text-zinc-500">一驗 · Scoring</span>
+          </span>
 
           {!online && <span className="badge bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">離線</span>}
           {settings.scoringLocked && (
@@ -48,13 +51,13 @@ export function Layout() {
           )}
 
           {profile?.isAdmin && (
-            <div role="group" aria-label="介面模式" className="flex rounded-lg border border-zinc-300 p-0.5 text-sm dark:border-zinc-700">
+            <div role="group" aria-label="介面模式" className="flex rounded-[10px] border border-zinc-300 p-0.5 text-sm dark:border-white/10">
               {(['admin', 'judge'] as Mode[]).map((m) => (
                 <button
                   key={m}
                   aria-pressed={mode === m}
                   onClick={() => switchMode(m)}
-                  className={`rounded-md px-3 py-1 ${mode === m ? 'bg-indigo-600 text-white' : 'text-zinc-600 dark:text-zinc-300'}`}
+                  className={`rounded-md px-3 py-1 transition-colors duration-150 ${mode === m ? 'bg-accent font-semibold text-accent-ink' : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'}`}
                 >
                   {m === 'admin' ? '管理' : '評審'}
                 </button>
@@ -63,7 +66,7 @@ export function Layout() {
           )}
 
           <button className="btn-ghost" onClick={cycle} aria-label={`主題：${THEME_LABEL[pref]}，點擊切換`}>
-            {pref === 'dark' ? '🌙' : pref === 'light' ? '☀️' : '🖥️'}
+            <ThemeIcon pref={pref} />
           </button>
           <span className="hidden text-sm text-zinc-500 sm:inline">{profile?.displayName}</span>
           <button className="btn-ghost" onClick={() => doLogout(false)} disabled={loggingOut}>
@@ -80,8 +83,8 @@ export function Layout() {
                 className={({ isActive }) =>
                   `rounded-md px-3 py-1.5 text-sm whitespace-nowrap ${
                     isActive
-                      ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-                      : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                      ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-800 dark:text-indigo-300'
+                      : 'text-zinc-600 hover:bg-zinc-200/60 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100'
                   }`
                 }
               >
@@ -115,5 +118,33 @@ export function Layout() {
         </div>
       )}
     </div>
+  );
+}
+
+function ThemeIcon({ pref }: { pref: 'system' | 'light' | 'dark' }) {
+  const common = {
+    width: 18,
+    height: 18,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true,
+  };
+  if (pref === 'dark') return <svg {...common}><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" /></svg>;
+  if (pref === 'light')
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </svg>
+    );
+  return (
+    <svg {...common}>
+      <rect x="3" y="4" width="18" height="12" rx="2" />
+      <path d="M8 20h8M12 16v4" />
+    </svg>
   );
 }

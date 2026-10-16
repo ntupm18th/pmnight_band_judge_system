@@ -2,30 +2,72 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* 設計系統：暖調現場工具風（暖黑／米白 + 舞台琥珀單一重點色） */
 @theme {
-  --font-sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, "PingFang TC", "Microsoft JhengHei", monospace;
+
+  /* 暖灰中性色（覆寫 zinc，整站自動套用） */
+  --color-zinc-50: #f7f4ef;
+  --color-zinc-100: #efeae2;
+  --color-zinc-200: #e4ddd2;
+  --color-zinc-300: #d2c9bc;
+  --color-zinc-400: #a79d90;
+  --color-zinc-500: #81786d;
+  --color-zinc-600: #625a51;
+  --color-zinc-700: #3a342e;
+  --color-zinc-800: #27231f;
+  --color-zinc-900: #181613;
+  --color-zinc-950: #0e0d0b;
+
+  /* 舞台琥珀（覆寫 indigo，作為唯一重點色） */
+  --color-indigo-50: #fff6e6;
+  --color-indigo-100: #fdeac6;
+  --color-indigo-200: #fad48e;
+  --color-indigo-300: #f6be5e;
+  --color-indigo-400: #f2a93b;
+  --color-indigo-500: #e2951f;
+  --color-indigo-600: #c97f0e;
+  --color-indigo-700: #9c620a;
+  --color-indigo-800: #6f4608;
+  --color-indigo-900: #452c06;
+  --color-indigo-950: #261803;
+
+  --color-accent: #f2a93b;
+  --color-accent-hover: #f6be5e;
+  --color-accent-ink: #1c1305;
 }
 
 @layer base {
   body {
     @apply bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+    text-wrap: pretty;
   }
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-indigo-500;
+    @apply outline-2 outline-offset-2 outline-indigo-400;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 35%, transparent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
   }
 }
 
 @utility card {
-  @apply rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900;
+  @apply rounded-[14px] border border-zinc-200 bg-white shadow-[0_1px_2px_rgb(28_25_22/0.04)] dark:border-white/[0.07] dark:bg-zinc-900 dark:shadow-none;
 }
 @utility btn {
-  @apply inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex min-h-10 items-center justify-center gap-1.5 rounded-[10px] px-4 text-sm font-medium transition-[background-color,color,border-color,transform] duration-150 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45 disabled:active:scale-100;
 }
 @utility btn-primary {
-  @apply btn bg-indigo-600 text-white hover:bg-indigo-500;
+  @apply btn bg-accent font-semibold text-accent-ink hover:bg-accent-hover;
 }
 @utility btn-secondary {
-  @apply btn border border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800;
+  @apply btn border border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-100 dark:border-white/10 dark:bg-zinc-800/60 dark:text-zinc-100 dark:hover:bg-zinc-800;
 }
 @utility btn-danger {
   @apply btn bg-red-600 text-white hover:bg-red-500;
@@ -34,7 +76,7 @@
   @apply btn px-3 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800;
 }
 @utility input {
-  @apply min-h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 text-base text-zinc-900 placeholder:text-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 sm:text-sm;
+  @apply min-h-10 w-full rounded-[10px] border border-zinc-300 bg-white px-3 text-base text-zinc-900 transition-colors duration-150 placeholder:text-zinc-400 focus:border-indigo-400 dark:border-white/10 dark:bg-zinc-950/60 dark:text-zinc-100 sm:text-sm;
 }
 @utility label {
   @apply mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300;
@@ -42,55 +84,80 @@
 @utility badge {
   @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap;
 }
+/* 分數與數字：等寬、對齊 */
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+/* 登入頁頂部的舞台暖光（極淡） */
+@utility stage-glow {
+  background-image: radial-gradient(ellipse 70% 45% at 50% -5%, color-mix(in oklab, var(--color-accent) 13%, transparent), transparent 70%);
+}
+/* 小型等寬標籤 */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
 
-/* 評分滑桿：大面積、好拖動，未填時淡化 */
+/* 評分滑桿：軌道加粗，已填部分為琥珀色（--pct 由元件提供），未填時整條灰色 */
 .score-range {
+  --track: var(--color-zinc-200);
   appearance: none;
   background: transparent;
   cursor: pointer;
   touch-action: pan-y;
 }
-.score-range::-webkit-slider-runnable-track {
-  height: 10px;
-  border-radius: 9999px;
-  background: var(--color-zinc-300);
+.dark .score-range {
+  --track: var(--color-zinc-800);
 }
-.dark .score-range::-webkit-slider-runnable-track {
-  background: var(--color-zinc-700);
+.score-range::-webkit-slider-runnable-track {
+  height: 12px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--color-accent) var(--pct, 0%), var(--track) var(--pct, 0%));
 }
 .score-range::-moz-range-track {
-  height: 10px;
+  height: 12px;
   border-radius: 9999px;
-  background: var(--color-zinc-300);
-}
-.dark .score-range::-moz-range-track {
-  background: var(--color-zinc-700);
+  background: linear-gradient(to right, var(--color-accent) var(--pct, 0%), var(--track) var(--pct, 0%));
 }
 .score-range::-webkit-slider-thumb {
   appearance: none;
   width: 30px;
   height: 30px;
-  margin-top: -10px;
+  margin-top: -9px;
   border-radius: 9999px;
-  background: var(--color-indigo-600);
-  border: 3px solid white;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+  background: #fff;
+  border: 3px solid var(--color-accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+  transition: transform 150ms ease-out;
 }
 .score-range::-moz-range-thumb {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: 9999px;
-  background: var(--color-indigo-600);
-  border: 3px solid white;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+  background: #fff;
+  border: 3px solid var(--color-accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+}
+.score-range:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+.score-range.unfilled::-webkit-slider-runnable-track {
+  background: var(--track);
+}
+.score-range.unfilled::-moz-range-track {
+  background: var(--track);
 }
 .score-range.unfilled::-webkit-slider-thumb {
-  background: var(--color-zinc-400);
+  border-color: var(--color-zinc-400);
 }
 .score-range.unfilled::-moz-range-thumb {
-  background: var(--color-zinc-400);
+  border-color: var(--color-zinc-400);
 }
 .score-range:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.45;
 }

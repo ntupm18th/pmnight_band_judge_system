@@ -26,12 +26,14 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center p-4">
+    <div className="stage-glow flex min-h-dvh flex-col items-center justify-center gap-8 p-4">
+      <div className="text-center">
+        <p className="eyebrow text-indigo-700 dark:text-indigo-300">PM Night · 一驗 · 2026</p>
+        <h1 className="mt-2 text-4xl font-bold tracking-[0.08em] sm:text-5xl">流唱之夜</h1>
+        <p className="mt-2 text-sm text-zinc-500">評審評分系統</p>
+      </div>
       <form onSubmit={onSubmit} className="card w-full max-w-sm space-y-4 p-6" aria-describedby={error ? 'login-error' : undefined}>
-        <div>
-          <h1 className="text-xl font-semibold">流唱之夜一驗評分系統</h1>
-          <p className="mt-1 text-sm text-zinc-500">請以評審或管理員帳號登入</p>
-        </div>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">請以評審或管理員帳號登入</p>
 
         <div>
           <label htmlFor="username" className="label">帳號</label>

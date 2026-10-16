@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, type CSSProperties } from 'react';
 
 interface Props {
   label: string;
@@ -28,11 +28,11 @@ export function ScoreSlider({ label, max, value, disabled, onChange, onCommit }:
     <div className="py-2">
       <div className="mb-1 flex items-baseline justify-between gap-2">
         <label htmlFor={id} className="text-sm font-medium">{label}</label>
-        <span className="tabular-nums" aria-hidden="true">
+        <span className="num" aria-hidden="true">
           {filled ? (
-            <span className="text-2xl font-semibold">{value}</span>
+            <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{value}</span>
           ) : (
-            <span className="text-base font-medium text-amber-600 dark:text-amber-400">未填</span>
+            <span className="font-sans text-sm font-medium text-zinc-400">未填</span>
           )}
           <span className="text-sm text-zinc-500"> / {max}</span>
         </span>
@@ -62,6 +62,7 @@ export function ScoreSlider({ label, max, value, disabled, onChange, onCommit }:
             if (/^(Arrow|Page|Home|End)/.test(e.key)) commitFromInput(e.currentTarget);
           }}
           className={`score-range h-11 w-full ${filled ? '' : 'unfilled'}`}
+          style={{ '--pct': `${(shown / max) * 100}%` } as CSSProperties}
         />
         <button
           type="button"
