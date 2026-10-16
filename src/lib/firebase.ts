@@ -68,6 +68,14 @@ export function getDb(): Firestore {
         : memoryLocalCache(),
     });
     if (useEmulator) connectFirestoreEmulator(dbInstance, '127.0.0.1', 8080);
+    if (import.meta.env.DEV) {
+      // 僅開發模式：測試離線行為用（正式版不會包含）
+      const db = dbInstance;
+      (window as unknown as Record<string, unknown>).__pmNetwork = {
+        off: () => import('firebase/firestore').then((m) => m.disableNetwork(db)),
+        on: () => import('firebase/firestore').then((m) => m.enableNetwork(db)),
+      };
+    }
   }
   return dbInstance;
 }

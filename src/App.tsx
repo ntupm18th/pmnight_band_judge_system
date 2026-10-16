@@ -5,7 +5,11 @@ import { FullPageMessage } from './components/FullPageMessage';
 import { LoginPage } from './pages/LoginPage';
 import { UsersPage } from './pages/admin/UsersPage';
 import { SettingsPage } from './pages/admin/SettingsPage';
-import { Placeholder } from './pages/Placeholder';
+import { AdminDataProvider } from './admin/AdminData';
+import { SummaryPage } from './pages/admin/SummaryPage';
+import { PerformancesPage } from './pages/admin/PerformancesPage';
+import { AuditPage } from './pages/admin/AuditPage';
+import { JudgePage } from './pages/judge/JudgePage';
 
 function Routed() {
   const { loading, user, profile, profileProblem, mode, logout } = useAuth();
@@ -32,15 +36,16 @@ function Routed() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/judge" element={<Placeholder title="評分" phase="第 3 階段" />} />
+        <Route path="/judge" element={<JudgePage />} />
+        <Route path="/judge/:performanceId" element={<JudgePage />} />
         {profile.isAdmin && (
-          <>
-            <Route path="/admin/summary" element={<Placeholder title="成績總表" phase="第 4 階段" />} />
-            <Route path="/admin/performances" element={<Placeholder title="表演管理" phase="第 2 階段" />} />
+          <Route element={<AdminDataProvider />}>
+            <Route path="/admin/summary" element={<SummaryPage />} />
+            <Route path="/admin/performances" element={<PerformancesPage />} />
             <Route path="/admin/users" element={<UsersPage />} />
-            <Route path="/admin/audit" element={<Placeholder title="稽核紀錄" phase="第 5 階段" />} />
+            <Route path="/admin/audit" element={<AuditPage />} />
             <Route path="/admin/settings" element={<SettingsPage />} />
-          </>
+          </Route>
         )}
         <Route path="*" element={<Navigate to={home} replace />} />
       </Route>

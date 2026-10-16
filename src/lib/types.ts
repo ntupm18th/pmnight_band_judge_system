@@ -20,6 +20,8 @@ export interface Performance {
   id: string;
   day: Day;
   order: number;
+  /** 預定開始時間，例如 "18:00"；可為空字串 */
+  startTime: string;
   bandName: string;
   song: string;
   category: Category;

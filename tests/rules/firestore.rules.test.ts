@@ -44,6 +44,7 @@ function perf(extra: Partial<Record<string, unknown>> = {}) {
   return {
     day: 1,
     order: 1,
+    startTime: '18:00',
     bandName: '測試團',
     song: '測試歌',
     category: 'vocal',

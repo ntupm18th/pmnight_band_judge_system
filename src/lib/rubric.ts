@@ -19,7 +19,7 @@ export interface Rubric {
 // 必須與 firestore.rules 中的 vocalItemsOk / bandItemsOk 保持一致
 export const RUBRICS: Record<Category, Rubric> = {
   vocal: {
-    label: '純人聲組',
+    label: '主唱組',
     sections: [
       {
         title: null,

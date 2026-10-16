@@ -42,3 +42,55 @@
 @utility badge {
   @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap;
 }
+
+/* 評分滑桿：大面積、好拖動，未填時淡化 */
+.score-range {
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.score-range::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--color-zinc-300);
+}
+.dark .score-range::-webkit-slider-runnable-track {
+  background: var(--color-zinc-700);
+}
+.score-range::-moz-range-track {
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--color-zinc-300);
+}
+.dark .score-range::-moz-range-track {
+  background: var(--color-zinc-700);
+}
+.score-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  margin-top: -10px;
+  border-radius: 9999px;
+  background: var(--color-indigo-600);
+  border: 3px solid white;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+}
+.score-range::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  background: var(--color-indigo-600);
+  border: 3px solid white;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+}
+.score-range.unfilled::-webkit-slider-thumb {
+  background: var(--color-zinc-400);
+}
+.score-range.unfilled::-moz-range-thumb {
+  background: var(--color-zinc-400);
+}
+.score-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

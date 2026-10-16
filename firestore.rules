@@ -70,9 +70,10 @@ service cloud.firestore {
     // ───────── 表演組別 ─────────
 
     function validPerformance(d) {
-      return keysExactly(d, ['day', 'order', 'bandName', 'song', 'category', 'active', 'deleted', 'updatedAt', 'updatedBy'])
+      return keysExactly(d, ['day', 'order', 'startTime', 'bandName', 'song', 'category', 'active', 'deleted', 'updatedAt', 'updatedBy'])
         && d.day in [1, 2]
         && d.order is int && d.order >= 0 && d.order <= 100000
+        && d.startTime is string && d.startTime.size() <= 20
         && d.bandName is string && d.bandName.size() >= 1 && d.bandName.size() <= 100
         && d.song is string && d.song.size() <= 200
         && d.category in ['vocal', 'band']

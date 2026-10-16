@@ -35,7 +35,7 @@ const perfs = [
 const batch = db.batch();
 for (const [day, order, bandName, song, category] of perfs) {
   batch.set(db.collection('performances').doc(), {
-    day, order, bandName, song, category, active: true, deleted: false,
+    day, order, startTime: '', bandName, song, category, active: true, deleted: false,
     updatedAt: FieldValue.serverTimestamp(), updatedBy: 'seed',
   });
 }

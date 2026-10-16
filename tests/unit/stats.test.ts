@@ -4,7 +4,7 @@ import { emptyItems, isComplete, totalOf } from '../../src/lib/rubric';
 import type { Performance, Score } from '../../src/lib/types';
 
 function perf(id: string, extra: Partial<Performance> = {}): Performance {
-  return { id, day: 1, order: 1, bandName: id, song: '', category: 'vocal', active: true, deleted: false, ...extra };
+  return { id, day: 1, order: 1, startTime: '', bandName: id, song: '', category: 'vocal', active: true, deleted: false, ...extra };
 }
 
 function sc(performanceId: string, judgeUid: string, pitch: number, extra: Partial<Score> = {}): Score {

@@ -54,7 +54,7 @@ export function UsersPage() {
         )}
         <p className="border-t border-zinc-200 px-4 py-3 text-xs text-zinc-500 dark:border-zinc-800">
           忘記密碼：由管理員在電腦上執行 <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">npm run reset-password -- 帳號 新密碼</code>。
-          帳號不能刪除，不再使用時請取消「啟用」。
+          帳號不能刪除，不再使用時請取消「啟用」。你自己那一列的「管理員」「啟用」是灰色的，因為系統不允許拔掉自己的權限，避免沒有人能管理系統。
         </p>
       </section>
 
@@ -91,6 +91,7 @@ function UserRow({ user, isSelf }: { user: UserProfile; isSelf: boolean }) {
         aria-label={`${user.username} ${field === 'isAdmin' ? '管理員' : field === 'isJudge' ? '評審' : '啟用'}`}
         checked={user[field]}
         disabled={disabled}
+        title={disabled ? '不能修改自己的這項權限' : undefined}
         onChange={(e) => patch({ [field]: e.target.checked })}
       />
     </td>

@@ -13,3 +13,9 @@ firestore-debug.log
 ui-debug.log
 *.tsbuildinfo
 .firebase/
+
+# 表演名單等活動資料不要放進公開 repo
+/*.xlsx
+/*.xls
+/*.csv
+data/
