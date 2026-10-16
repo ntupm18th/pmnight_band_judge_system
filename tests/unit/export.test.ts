@@ -36,6 +36,8 @@ describe('buildWorkbook', () => {
     expect(rows[0]['平均']).toBe(79); // (88 + 70) / 2
     expect(rows[0]['組內排名']).toBe(1);
     expect(rows[1]['平均']).toBe('尚無有效成績');
+    expect(rows[0]['評審備註']).toBe('評審一：很好');
+    expect(sheet('主唱組排名')[0]['評審備註']).toBe('評審一：很好');
   });
 
   it('明細包含每位評審各項分數、總分與備註', () => {

@@ -34,6 +34,13 @@ export function buildWorkbook(
 ) {
   const wb = XLSX.utils.book_new();
   const judgeName = (uid: string) => usersById.get(uid)?.displayName ?? uid;
+  // 每組表演所有評審的備註，合併成一格，每位評審一行（例如「評審一：…」）
+  const notesOf = (performanceId: string) =>
+    scores
+      .filter((s) => s.performanceId === performanceId && s.note.trim())
+      .sort((a, b) => judgeName(a.judgeUid).localeCompare(judgeName(b.judgeUid)))
+      .map((s) => `${judgeName(s.judgeUid)}：${s.note.trim()}`)
+      .join('\n');
 
   // 摘要
   const summary = performances.map((p) => {
@@ -53,6 +60,7 @@ export function buildWorkbook(
       草稿: st.draftCount,
       不上場標記: st.noShowCount,
       異常: st.anomalies.join('；'),
+      評審備註: notesOf(p.id),
     };
   });
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summary), '摘要');
@@ -70,6 +78,7 @@ export function buildWorkbook(
         順序: p.order,
         報名人: p.bandName,
         曲目: p.song,
+        評審備註: notesOf(p.id),
       }));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ranked), `${CATEGORY_LABEL[cat]}排名`);
   }
